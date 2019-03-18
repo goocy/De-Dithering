@@ -22,7 +22,7 @@ Output will be generated into the folder "test results".
 #### Alternatively: training the model to de-dither images with your own palette
 
 * Install Imagemagick. Make sure the command "magick" can be called from everywhere.
-* Create two subfolders "train" and "val" in the folder "raw training images". Fill the two subfolders with at least 200 flat, crisp photos of real-world textures. Size constraints: 240x240 minimum, 240 megapixels maximum.
+* Create two subfolders "train" and "val" in the folder "raw training images". Fill the two subfolders with at least 200 flat, crisp photos of real-world textures. Size constraints: 300x300 minimum, 240 megapixels maximum.
 * Replace the palette "PerOxyd.bmp" by the one your source material requires. Up to 256 colors are supported. The filename is hard-coded in prep\_training\_data.py, line 133.
 * Run with Python 3.6:
 
@@ -30,7 +30,7 @@ Output will be generated into the folder "test results".
 pip3 install -r requirements.txt
 python prep_training_data.py
 python train.py
-python test_image.py
+python test_image.py --model_name=epoch_FloydSteinberg_250.pt
 ```
 
 
