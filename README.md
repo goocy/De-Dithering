@@ -2,7 +2,7 @@
 
 A feedforward network for interpolating 4-bit images with a custom palette to 24-bit color
 
-![title screen](https://github.com/goocy/De-Dithering/blob/master/images//title%20screen.png)
+![title screen](https://github.com/goocy/De-Dithering/blob/master/readme//title%20screen.png)
 
 ## Instructions
 
@@ -14,7 +14,7 @@ For base functionality:
 
 ```
 pip3 install -r requirements.txt
-python test_image.py.
+python test_image.py
 ```
 
 Output will be generated into the folder "test results".
@@ -46,7 +46,7 @@ Most games in 1995 went for the lower resolution and higher color depth because 
 - a carefully optimized, custom 16-color palette
 - heavy dithering on all textures
 
-![screenshot of a typical level in Per.Oxyd](https://github.com/goocy/De-Dithering/blob/master/images/example%20full%20screen.png)
+![screenshot of a typical level in Per.Oxyd](https://github.com/goocy/De-Dithering/blob/master/readme/example%20full%20screen.png)
 
 Both the resolution and the color palette are looking very dated today when playing on a large monitor. The contemporary remake of the game, Enigma, has a lower-quality tileset. Since I still enjoy playing this game, I decided to polish the original textures and make them compatible with the 21st century.
 
@@ -54,7 +54,7 @@ Both the resolution and the color palette are looking very dated today when play
 
 The game's textures have obviously been optimized side-by-side with the palette, and the developer seems to have used an automated dithering approach. This becomes obvious when looking closely at the titular Oxyd stones. These tiles appear in every level and the color/shape coding is critical for progressing to the next puzzle.
 
-![image of four Oxyd blocks](https://github.com/goocy/De-Dithering/blob/master/images/oxyd%20blocks%20raw.png)
+![image of four Oxyd blocks](https://github.com/goocy/De-Dithering/blob/master/readme/oxyd%20blocks%20raw.png)
 
 These block demonstrate that my approach has to resolve at least two non-trivial problems:
 
@@ -67,11 +67,11 @@ I briefly thought about reverse-engineering and inverting the original dithering
 
 This is the 16-color palette that the game uses to display absolutely everything: start screen, menus, tiles, cursors, shadows, and the marble that the player controls.
 
-![16 different color swatches](https://github.com/goocy/De-Dithering/blob/master/images/Palette.png)
+![16 different color swatches](https://github.com/goocy/De-Dithering/blob/master/readme/Palette.png)
 
 I extracted it from the game, and scraped together ~2500 images to train my AI. Since the game seems to go for a somewhat photorealistic approach, my reference images consisted of photographs of flat, real-world textures. Sizes varied from 240x160px to 25000x18000px, and the median dimensions were 1600x900px. I made sure that they were free from noise and compression artifacts, and scaled images down if they weren't sharp enough at the pixel scale. The total filesize was 4.6 GB (all in PNG format). I separated 10% of those images into a representative validation group and moved onto the next step. Here's a random selection from the reference set at a 2x magnification:
 
-![eight photo-realistic swatches of textures next to each other](https://github.com/goocy/De-Dithering/blob/master/images/textures%20raw.png)
+![eight photo-realistic swatches of textures next to each other](https://github.com/goocy/De-Dithering/blob/master/readme/textures%20raw.png)
 
 Next, I used Imagemagick to reduce the color depth from 24bit to dithered 8-bit. I first went with the Riemersma dithering algorithm, but after looking very closely at some patterns I decided that the game probably used Floyd-Steinberg instead and switched to that.
 
@@ -80,7 +80,7 @@ magick convert input.png -remap palette.png -dither FloydSteinberg output.png
 ```
 This conversion took about 40 minutes on an AMD Ryzen 2600x. Here's how the same eight texture samples looked afterwards, at a 2x magnification:
 
-![eight heavily spotty swatches of textures next to each other](https://github.com/goocy/De-Dithering/blob/master/images/textures%20dithered.png)
+![eight heavily spotty swatches of textures next to each other](https://github.com/goocy/De-Dithering/blob/master/readme/textures%20dithered.png)
 
 Notably, the pure grey sample #4 and #8 show a lot of colored pixels, just like the textures in the game that seem to be intended to be grey. This showed me that this reference/target pair was suitable for representing fundamental problem #1, and I started building a neural network.
 
@@ -105,21 +105,21 @@ Problem #3: Shadows in the game rely on a hard-coded "checkerboard" dithering pa
 
 My solution was to overlay an irregular patch of the "checkerboard" pattern onto each target image, and a semi-transparent patch of the same shape onto the reference image. This way, the model was successfully able to learn that this pattern represented a 50% opacity layer. The resulting training pairs looked like this:
 
-![Comparison of two texture patches](https://github.com/goocy/De-Dithering/blob/master/images/comparison%20after%20shadows.png)
+![Comparison of two texture patches](https://github.com/goocy/De-Dithering/blob/master/readme/comparison%20after%20shadows.png)
 
 Problem #4: When using the trained model to interpolate the color depth of screenshots from the game, the output was noticably too soft.
 
-![Comparison of two screenshots: left: slightly blurry, right: blotchy but crips](https://github.com/goocy/De-Dithering/blob/master/images/example%20too%20soft.png)
+![Comparison of two screenshots: left: slightly blurry, right: blotchy but crips](https://github.com/goocy/De-Dithering/blob/master/readme/example%20too%20soft.png)
 
 Left: 24-bit output, right: 16-color input
 
 My suspicion was that the model didn't encounter enough sharp edges in the training set, since the photos always showed a single texture. In defence of the model, the difference between a sharp edge and a flat texture is very subtle in heavily dithered images like mine. For example, here's a close-up of of three textures from above. The border between the two grey textures is clearly visible in the reference image, but in the dithered target image it's much more ambiguous:
 
-![Comparison of two texture patches](https://github.com/goocy/De-Dithering/blob/master/images/texture%20border%20comparison.png)
+![Comparison of two texture patches](https://github.com/goocy/De-Dithering/blob/master/readme/texture%20border%20comparison.png)
 
 To get my model used to finding hard borders in dithered images, I overlayed a small patch with a random texture onto each training image. The results were subtly improved: The output textures still looked too soft, but at least the model produced clearer edges between blocks.
 
-![Comparison of game screenshot before and after interpolation](https://github.com/goocy/De-Dithering/blob/master/images/comparison%20after%20patching.png)
+![Comparison of game screenshot before and after interpolation](https://github.com/goocy/De-Dithering/blob/master/readme/comparison%20after%20patching.png)
 
 ## Results
 
@@ -129,9 +129,9 @@ My favorite result is attempt #18, with the entire feature set enabled to correc
 
 The following are representative and unmodified output samples of this configuration (left: input, right: output):
 
-![orange raw](https://github.com/goocy/De-Dithering/blob/master/images/example%20orange%20raw.png)![orange interpolated](https://github.com/goocy/De-Dithering/blob/master/images/example%20orange%20post.jpg)
-![items raw](https://github.com/goocy/De-Dithering/blob/master/images/example%20items%20raw.png)![items interpolated](https://github.com/goocy/De-Dithering/blob/master/images/example%20items%20post.jpg)
-![mirrors raw](https://github.com/goocy/De-Dithering/blob/master/images/example%20mirrors%20raw.png)![mirrors interpolated](https://github.com/goocy/De-Dithering/blob/master/images/example%20mirrors%20post.jpg)
+![orange raw](https://github.com/goocy/De-Dithering/blob/master/readme/example%20orange%20raw.png)![orange interpolated](https://github.com/goocy/De-Dithering/blob/master/readme/example%20orange%20post.jpg)
+![items raw](https://github.com/goocy/De-Dithering/blob/master/readme/example%20items%20raw.png)![items interpolated](https://github.com/goocy/De-Dithering/blob/master/readme/example%20items%20post.jpg)
+![mirrors raw](https://github.com/goocy/De-Dithering/blob/master/readme/example%20mirrors%20raw.png)![mirrors interpolated](https://github.com/goocy/De-Dithering/blob/master/readme/example%20mirrors%20post.jpg)
 
 ## Conclusion & Outlook
 
