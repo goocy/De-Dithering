@@ -1,10 +1,10 @@
-#De-Ditherer
+# De-Ditherer
 
 A feedforward network for interpolating 4-bit images with a custom palette to 24-bit color
 
 ![title screen](images/title screen.png)
 
-##Instructions
+## Instructions
 
 For base functionality:
 
@@ -19,7 +19,7 @@ python test_image.py.
 
 Output will be generated into the folder "test results".
 
-####Alternatively: training the model to de-dither images with your own palette
+#### Alternatively: training the model to de-dither images with your own palette
 
 * Install Imagemagick. Make sure the command "magick" can be called from everywhere.
 * Create two subfolders "train" and "val" in the folder "raw training images". Fill the two subfolders with at least 200 flat, crisp photos of real-world textures. Size constraints: 240x240 minimum, 240 megapixels maximum.
@@ -34,7 +34,7 @@ python test_image.py
 ```
 
 
-##Background
+## Background
 
 Per.Oxyd (1995) is one of my favorite puzzle games. At the time, games were limited to the VGA standard, which gave developers two choices:
 
