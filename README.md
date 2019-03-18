@@ -2,7 +2,7 @@
 
 A feedforward network for interpolating 4-bit images with a custom palette to 24-bit color
 
-![title screen]((https://github.com/goocy/De-Dithering/blob/master/images//title%20screen.png)
+![title screen](https://github.com/goocy/De-Dithering/blob/master/images//title%20screen.png)
 
 ## Instructions
 
@@ -67,7 +67,7 @@ I briefly thought about reverse-engineering and inverting the original dithering
 
 This is the 16-color palette that the game uses to display absolutely everything: start screen, menus, tiles, cursors, shadows, and the marble that the player controls.
 
-![16 different color swatches](https://github.com/goocy/De-Dithering/blob/master/images/palette.png)
+![16 different color swatches](https://github.com/goocy/De-Dithering/blob/master/images/Palette.png)
 
 I extracted it from the game, and scraped together ~2500 images to train my AI. Since the game seems to go for a somewhat photorealistic approach, my reference images consisted of photographs of flat, real-world textures. Sizes varied from 240x160px to 25000x18000px, and the median dimensions were 1600x900px. I made sure that they were free from noise and compression artifacts, and scaled images down if they weren't sharp enough at the pixel scale. The total filesize was 4.6 GB (all in PNG format). I separated 10% of those images into a representative validation group and moved onto the next step. Here's a random selection from the reference set at a 2x magnification:
 
