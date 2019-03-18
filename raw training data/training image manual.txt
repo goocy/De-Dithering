@@ -1,0 +1,3 @@
+Contents: flat photos of high-resolution real-world textures, as varied as possible
+Folder structure: 90% for subfolder "train", 10% for subfolder "val"
+Size constraints: 240x240px minimum, 240 megapixels maximum
