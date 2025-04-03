@@ -9,20 +9,20 @@ from torch.autograd import Variable
 from torchvision.transforms import ToTensor
 from tqdm import tqdm
 
-from prep_training_data import is_image_file
+from datasetAugmentation import IsImageFile
 from model import Net
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Generate dithered dataset')
     parser.add_argument('--dithering_type', default='FloydSteinberg', type=str, help='None, Riemersma or FloydSteinberg')
-    parser.add_argument('--model_name', default='model 18.pt', type=str, help='model filename')
+    parser.add_argument('--model_name', default='epoch_FloydSteinberg_100.pt', type=str, help='model filename')
     opt = parser.parse_args()
 
     dithering_type = opt.dithering_type
     model_name = opt.model_name
 
     path = 'test images/'
-    images_name = [x for x in listdir(path) if is_image_file(x)]
+    images_name = [x for x in listdir(path) if IsImageFile(x)]
     model = Net()
     if torch.cuda.is_available():
         model = model.cuda()
@@ -33,7 +33,7 @@ if __name__ == "__main__":
         os.makedirs(out_path)
     for image_name in tqdm(images_name, desc='convert LR images to HR images'):
 
-        img = Image.open(path + image_name).convert('YCbCr')
+        img = Image.open(path + image_name).convert('RGB')
         image = Variable(ToTensor()(img)).view(1, -1, img.size[1], img.size[0])
         if torch.cuda.is_available():
             image = image.cuda()
@@ -46,8 +46,8 @@ if __name__ == "__main__":
         out_img = np.uint8(out_img)
         out_img = np.swapaxes(out_img, 0, 2)
         out_img = np.swapaxes(out_img, 0, 1)
-        out_img = Image.fromarray(out_img, mode='YCbCr')
-        out_img = out_img.convert('RGB')
+        out_img = Image.fromarray(out_img, mode='RGB')
+        #out_img = out_img.convert('RGB')
         out_filename = out_path + image_name
         if os.path.isfile(out_filename):
             os.remove(out_filename)

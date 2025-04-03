@@ -1,0 +1,24 @@
+Log 250331
+
+Schritt 20:
+Größeres Netzwerk
+zurück zu RGB
+Augmentation nur noch mit schwarzen Blobs (keine weißen mehr)
+Datensatz-Erstellung finegetuned (jetzt pixel-präzise)
+Training-Samples jetzt mit präziserer Vorschau
+-> Farbsäume entlang der Schatten sind weg
+-> 45° und 135° Schatten-Winkel machen noch Probleme
+-> Details sind ziemlich unsicher
+
+Schritt 21:
+mehr Trainingsdaten (x3) durch Resampling vor Dithering
+Augmentation jetzt mit zwei Schatten-Typen: Kugeln und Blöcke
+-> bisherige Probleme beseitigt
+-> Farbverläufe noch etwas unsicher
+-> Details sehen etwas komprimiert aus
+
+Schritt 22:
+viel mehr Trainingsdaten (x9) durch Resampling vor Dithering
+neue Filter-Methode in der Training-Daten-Vorbereitung (entfernt Bilder, wenn sie zu weit von der Palette abweichen)
+Augmentation: Schatten werden jetzt dynamisch generiert und an die zufälligen Patches angehängt
+Optimizer-Step ins Training eingefügt
